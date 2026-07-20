@@ -1,0 +1,22 @@
+{"devices":[
+ {"id":"core-sw-01","type":"core-switch","site":"DC-A","parent":null},
+ {"id":"core-sw-02","type":"core-switch","site":"DC-A","parent":null},
+ {"id":"fw-01","type":"firewall","site":"DC-A","parent":"core-sw-01"},
+ {"id":"fw-02","type":"firewall","site":"DC-A","parent":"core-sw-02"},
+ {"id":"dist-sw-01","type":"dist-switch","site":"DC-A","parent":"core-sw-01"},
+ {"id":"dist-sw-02","type":"dist-switch","site":"DC-A","parent":"core-sw-01"},
+ {"id":"dist-sw-03","type":"dist-switch","site":"DC-B","parent":"core-sw-02"},
+ {"id":"acc-sw-01","type":"access-switch","site":"DC-A","parent":"dist-sw-01"},
+ {"id":"acc-sw-02","type":"access-switch","site":"DC-A","parent":"dist-sw-01"},
+ {"id":"acc-sw-03","type":"access-switch","site":"DC-A","parent":"dist-sw-01"},
+ {"id":"acc-sw-04","type":"access-switch","site":"DC-A","parent":"dist-sw-02"},
+ {"id":"acc-sw-05","type":"access-switch","site":"DC-A","parent":"dist-sw-02"},
+ {"id":"acc-sw-06","type":"access-switch","site":"DC-A","parent":"dist-sw-02"},
+ {"id":"acc-sw-07","type":"access-switch","site":"DC-B","parent":"dist-sw-03"},
+ {"id":"acc-sw-08","type":"access-switch","site":"DC-B","parent":"dist-sw-03"},
+ {"id":"rtr-edge-01","type":"router","site":"DC-A","parent":"core-sw-01"},
+ {"id":"rtr-edge-02","type":"router","site":"DC-B","parent":"core-sw-02"},
+ {"id":"ap-ctrl-01","type":"wlc","site":"DC-A","parent":"dist-sw-02"},
+ {"id":"srv-mon-01","type":"server","site":"DC-A","parent":"acc-sw-01"},
+ {"id":"srv-log-01","type":"server","site":"DC-B","parent":"acc-sw-07"}
+]}
