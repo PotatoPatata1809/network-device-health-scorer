@@ -1,0 +1,59 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>NetPulse</title>
+<style>
+body{margin:0;font-family:-apple-system,Segoe UI,sans-serif;background:#0f1419;color:#e6edf3}
+header{padding:14px 22px;border-bottom:1px solid #222c37;display:flex;justify-content:space-between;align-items:center}
+h1{font-size:17px;margin:0;letter-spacing:.5px}
+.live{font-size:11px;color:#3fb950}
+.wrap{display:flex;height:calc(100vh - 52px)}
+.left{flex:1.6;overflow:auto;padding:16px 22px}
+.right{flex:1;border-left:1px solid #222c37;padding:16px 22px;background:#11171d}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:#7d8590;font-weight:500;font-size:11px;text-transform:uppercase;padding:8px 6px;border-bottom:1px solid #222c37}
+td{padding:9px 6px;border-bottom:1px solid #1a2129}
+tr.sel{background:#182430}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}
+.r{background:#f85149}.a{background:#d29922}.g{background:#3fb950}
+.bar{height:5px;border-radius:3px;background:#222c37;width:70px;display:inline-block;vertical-align:middle}
+.bar span{display:block;height:100%;border-radius:3px}
+.sec{margin-bottom:18px}
+.lbl{font-size:10px;color:#7d8590;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.big{font-size:26px;font-weight:600}
+.card{background:#0f1419;border:1px solid #222c37;border-radius:6px;padding:11px;margin-bottom:9px;font-size:12.5px;line-height:1.5}
+.tag{display:inline-block;background:#21262d;border-radius:4px;padding:2px 7px;font-size:11px;margin-right:5px}
+svg text{font-size:9px;fill:#8b949e}
+</style></head><body>
+<header><h1>NetPulse — Device Health &amp; Impact Console</h1><span class="live">● LIVE · 20 devices · updated 3s ago</span></header>
+<div class="wrap">
+<div class="left">
+<div class="lbl">Priority Action List — ranked by Health × Urgency × Impact</div>
+<table>
+<tr><th>Device</th><th>Type</th><th>Health</th><th>Predicted</th><th>Impact</th><th>Priority</th></tr>
+<tr class="sel"><td><span class="dot r"></span>core-sw-01</td><td>Core Switch</td><td><span class="bar"><span style="width:24%;background:#f85149"></span></span> 24</td><td>~4h to critical</td><td>15 devices</td><td><b>98</b></td></tr>
+<tr><td><span class="dot r"></span>dist-sw-02</td><td>Dist Switch</td><td><span class="bar"><span style="width:38%;background:#f85149"></span></span> 38</td><td>~11h</td><td>4 devices</td><td><b>71</b></td></tr>
+<tr><td><span class="dot a"></span>fw-01</td><td>Firewall</td><td><span class="bar"><span style="width:56%;background:#d29922"></span></span> 56</td><td>~2d</td><td>0 devices</td><td><b>44</b></td></tr>
+<tr><td><span class="dot a"></span>rtr-edge-02</td><td>Router</td><td><span class="bar"><span style="width:61%;background:#d29922"></span></span> 61</td><td>~3d</td><td>2 devices</td><td><b>37</b></td></tr>
+<tr><td><span class="dot g"></span>acc-sw-03</td><td>Access Switch</td><td><span class="bar"><span style="width:88%;background:#3fb950"></span></span> 88</td><td>—</td><td>0 devices</td><td><b>9</b></td></tr>
+<tr><td><span class="dot g"></span>srv-mon-01</td><td>Server</td><td><span class="bar"><span style="width:92%;background:#3fb950"></span></span> 92</td><td>—</td><td>0 devices</td><td><b>6</b></td></tr>
+</table>
+<div class="lbl" style="margin-top:22px">core-sw-01 — CPU utilisation (48h)</div>
+<svg viewBox="0 0 620 130" style="width:100%;height:130px">
+<polyline fill="none" stroke="#3fb950" stroke-width="1.6" points="0,95 40,88 80,97 120,84 160,92 200,86 240,90 280,83 320,88"/>
+<polyline fill="none" stroke="#f85149" stroke-width="1.6" points="320,88 360,74 400,66 440,50 480,38 520,28 560,16 600,10"/>
+<rect x="320" y="0" width="300" height="120" fill="#f85149" opacity="0.07"/>
+<line x1="0" y1="20" x2="620" y2="20" stroke="#30363d" stroke-dasharray="3,3"/>
+<text x="4" y="16">critical threshold</text>
+<text x="330" y="118">anomaly onset — detected 14:22</text>
+</svg>
+</div>
+<div class="right">
+<div class="sec"><div class="lbl">Selected device</div><div class="big">core-sw-01</div>
+<div style="color:#7d8590;font-size:12px">Core Switch · DC-A · uptime 41d</div></div>
+<div class="sec"><div class="lbl">Why this score</div>
+<div class="card">Memory pressure contributes <b>71%</b> of the degradation. Interface error rate is <b>8.2×</b> higher than its 11 peer switches. CPU trend rising steadily since 14:22.</div></div>
+<div class="sec"><div class="lbl">Forecast</div>
+<div class="card">Projected to cross critical threshold in <b>~4 hours</b> at current trend.</div></div>
+<div class="sec"><div class="lbl">Blast radius — 15 devices offline if this fails</div>
+<div class="card"><span class="tag">dist-sw-01</span><span class="tag">dist-sw-02</span><span class="tag">fw-01</span><span class="tag">rtr-edge-01</span><span class="tag">acc-sw-01…06</span><span class="tag">+7 more</span></div></div>
+<div class="sec"><div class="lbl">Recommended action</div>
+<div class="card">Memory leak signature detected. Schedule failover to <b>core-sw-02</b>, then restart affected process. Verify STP convergence post-switchover.</div></div>
+</div></div></body></html>
