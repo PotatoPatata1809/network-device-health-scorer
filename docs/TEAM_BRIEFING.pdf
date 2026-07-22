@@ -1,0 +1,827 @@
+# TEAM BRIEFING — NetPulse, Round 1
+
+Read Parts 1–5 before you touch the script. If four people understand the project the same
+way, the presentation holds together even when someone forgets a line. If they don't, the
+panel finds out in the first question.
+
+**Parts 1–5** = understanding. **Part 6** = the script. **Part 7** = the questions they'll ask.
+
+---
+---
+
+# PART 1 — The basics
+
+## 1.1 What is SNMP?
+
+**Simple Network Management Protocol.** It is the language network devices use to report
+how they are doing.
+
+Think of a hospital ward. Every patient has a chart hanging at the end of the bed with
+numbered lines on it — line 1 temperature, line 2 pulse, line 3 blood pressure. A nurse walks
+around every hour, reads the numbers off each chart, and writes them into a central register.
+
+That's SNMP.
+
+- The **patient** is a switch, router or firewall.
+- The **chart** is called the **MIB** (Management Information Base) — the list of everything
+  the device is willing to report about itself.
+- Each **numbered line** on the chart is an **OID** (Object Identifier) — a unique address
+  for one specific measurement. Real OIDs look like `1.3.6.1.2.1.2.2.1.14`, which is why
+  everyone uses the human names instead.
+- The **nurse** is the **manager** (the monitoring server). It asks; the device answers.
+- The small piece of software on the device that answers is the **agent**.
+- The nurse's hourly round is **polling** — the manager asks, on a schedule.
+- If the patient collapses, they don't wait for the nurse. They shout. That's a **trap** —
+  the device pushes an alert to the manager on its own.
+
+Two directions, then: **polling** is pull (manager asks every 30 seconds), **traps** are push
+(device shouts when something breaks). Almost all real monitoring is polling, because a device
+that has died cannot send a trap.
+
+### Why SNMP matters
+
+It is universal. Cisco, HPE, Juniper, Arista, an old unmanaged switch in a cupboard — they all
+speak it. That's why a monitoring tool built on SNMP works across a mixed vendor network, and
+it's why the problem statement names it.
+
+### The five OIDs we use
+
+| Name | Plain meaning | What it catches |
+|---|---|---|
+| `ifInErrors` | Count of corrupted packets arriving on an interface | Bad cable, dying optic, duplex mismatch |
+| `hrProcessorLoad` | CPU utilisation | Overload, routing churn, a process spinning |
+| `hrStorageUsed` | Memory in use | Memory leaks, buffer exhaustion |
+| `sysUpTime` | How long since the device last booted | Silent reboots — the number resets |
+| `ifOperStatus` | Is the interface up or down | Link failure |
+
+Note `ifInErrors` is a **counter** — it only goes up, and it never resets until reboot. So the
+interesting thing is never the value, it's the **rate**: 400 errors is meaningless, 400 errors
+*per minute and climbing* is a failing link. Remember this, it comes back in Part 3.
+
+### One thing we should say honestly
+
+Our demo replays recorded data instead of polling live devices. **The schema is real** — every
+metric travels under the real OID names above — but the source is a file, not a switch. Part 4
+explains why, and it is a good reason, not an excuse.
+
+---
+
+## 1.2 What the problem statement actually asks for
+
+> *"Network administrators managing large device fleets need a consolidated view of device
+> health that goes beyond simple up/down status. Poll devices using SNMP, aggregate multiple
+> health metrics per device, and compute a composite health score using a weighted formula or
+> trained regression model. Present a web-based inventory view with color-coded health
+> indicators and per-metric drill-down."*
+
+Broken into parts:
+
+1. Collect metrics from devices over SNMP
+2. Combine several metrics per device into one health score
+3. Show it in a web dashboard, colour-coded, with drill-down per metric
+
+**The real problem underneath it:** an admin with 500 devices opens a dashboard and sees 500
+green dots. One of those devices is going to fail tonight. Nothing on the screen tells them which.
+
+Up/down monitoring can't help, because all three of the failures that actually hurt look
+perfectly healthy to it:
+
+- **Slow memory leak** — device stays UP for days, memory creeps up 2% an hour, dies at 3am Sunday.
+- **Interface error creep** — link is UP, but errors are climbing. Users experience lag and
+  retransmits long before anything is officially "down".
+- **Silent reboot loop** — the device reboots every few hours. Every poll finds it UP. The
+  dashboard is green the entire time.
+
+That's the gap. Everything we built aims at it.
+
+---
+
+## 1.3 Why we did NOT just use a weighted formula
+
+The brief suggests: `score = 0.4 × CPU + 0.3 × memory + 0.2 × errors + 0.1 × uptime`.
+
+Two problems.
+
+**First, the weights are indefensible.** Why 0.4 and not 0.35? Nobody can answer. We picked
+them, so they're an opinion wearing the costume of a measurement.
+
+**Second and worse — a raw number ignores what's normal for that device.** A core switch that
+normally runs at 70% CPU is fine at 70%. An access switch that normally sits at 12% is in
+serious trouble at 40%. One shared formula calls the healthy device sick and the sick device
+healthy.
+
+**So what did we do with it?** We implemented it anyway and display it as a second column
+beside our score. It's our baseline, not our product. That gives us a demo moment: a device the
+weighted formula calls "68, fine" while NetPulse flags it critical — because it has drifted far
+from *its own* normal and has 15 devices sitting downstream of it.
+
+**The line to remember:** *"The brief's weighted formula is our baseline, not our product. We
+implement it, display it, and beat it."*
+
+---
+---
+
+# PART 2 — What we're proposing
+
+## 2.1 The core idea: three signals, not one score
+
+A health score of 41 tells an operator a device is unwell. It does not tell them whether to get
+out of bed. So we compute three separate things and multiply them.
+
+| Signal | The question | How we get it | Example output |
+|---|---|---|---|
+| **Health** | How bad is it? | Model learns this device's own normal, measures the deviation | `24 / 100` |
+| **Urgency** | How long have I got? | Draw the trend line forward to the critical threshold | `~4 hours` |
+| **Impact** | What breaks with it? | Walk the network map to count everything downstream | `15 devices` |
+
+`priority = health × urgency × impact`
+
+**Why multiply?** Because a nearly-dead device with nothing behind it is a low priority, and a
+mildly-degraded core switch with 15 devices behind it is a high one. Multiplication makes any
+one signal able to dominate — which is what you want. Addition would let a big Impact hide a
+perfect Health score, and the device would rank high while being completely fine.
+
+**"Independent" matters.** The three come from three unrelated sources — a model, a trend line,
+a graph. If one is wrong, the other two still stand. The weighted formula is the opposite: one
+number, and if the weights are wrong, everything downstream of it is wrong.
+
+**The one-liner:** *"We don't just score health — we tell you what will fail, when, and what
+breaks with it."*
+
+## 2.2 The seven features, in plain words
+
+| | Feature | What it does | Status |
+|---|---|---|---|
+| **A** | **Self-baseline anomaly detection** | Each device learns its own normal. We flag deviation from *that*, not from a shared threshold. | **BUILT & VALIDATED** |
+| **B** | **Blast-radius impact** | Walk the topology: "if core-sw-01 dies, these 15 devices go dark." Turns a health score into a business consequence. | Designed · 21–23 Jul |
+| **C** | **Time-to-failure forecast** | Extend the trend line to where it crosses critical. "~4 hours" instead of "it's red now." | Designed · 24–26 Jul |
+| **D** | **Peer comparison** | Compare a device only to its same-role, same-site siblings. "Errors 8.2× higher than its 11 peer switches" — same config, same job, so an outlier means bad hardware or bad config. | Designed · 21–23 Jul |
+| **F** | **Explainability** | Every score says why. "Memory pressure drives 71% of this score." An unexplained score doesn't get acted on. | Designed · 24–26 Jul |
+| **G** | **What-if failure map** | Click any device: "if this fails, here's what goes with it." Planning tool, not just an alarm. | Designed · 27–28 Jul |
+| **H** | **Correlated alert suppression** | Parent fails → 15 children also alarm. We recognise one cause, suppress 15 child alerts, raise one incident. | Designed · 27–28 Jul |
+
+*(There is no E — the register skipped it and we kept the letters stable rather than renumber
+files. If asked, say exactly that.)*
+
+**If you remember one feature, remember D.** Peer comparison is the one reviewers underestimate.
+Comparing a device against identical siblings is what separates *"this device is busy"* from
+*"this device is broken."*
+
+## 2.3 How the pieces fit together
+
+```
+NAB data  →  replay engine  →  scoring core  →  Supabase  →  Next.js console
+             (pluggable         health, urgency,   Postgres +    priority list,
+              collector,        impact, remedy     realtime      charts, blast map
+              SNMP-native)      lookup
+```
+
+Two design points carry marks:
+
+**The swap-in guarantee.** Every metric moves under its real SNMP name through a *pluggable
+collector*. Replace the replay collector with a live `pysnmp` poller and nothing downstream
+changes. The schema is real; only the source is simulated.
+
+**Topology is an input, not decoration.** One graph powers blast radius, the what-if map and
+alert suppression. Three features out of one data structure — which is why they land in the
+same week rather than three separate weeks.
+
+---
+---
+
+# PART 3 — The technical bits, explained simply
+
+This part is why we win the feasibility marks. Everyone should be able to explain 3.2 and 3.5.
+
+## 3.1 What is an "anomaly"?
+
+A reading that doesn't fit the device's own pattern. Not "high" — *unusual for this device*.
+
+A night-shift worker sleeping at noon isn't an anomaly. You sleeping at noon might be. Same
+behaviour, different baseline. That single idea is the whole project.
+
+## 3.2 Method 1 — the classical threshold (3-sigma)
+
+The traditional approach, and the one we had to beat.
+
+1. Take all readings from a device. Compute the average.
+2. Compute the standard deviation — a measure of how much the readings normally bounce around.
+3. Flag anything more than 3 standard deviations from the average.
+
+**Analogy.** If your commute is normally 30 minutes and swings by about 5, then 3-sigma says
+anything past 45 minutes is unusual. Sensible. Cheap. No machine learning.
+
+**And it works well.** We must be honest about this — it beat our model twice. On a single
+metric it's close to the best you can do, because "far from the average" is exactly what a
+single-metric anomaly *is*.
+
+**Where it breaks:** it needs a decent amount of variation to calibrate against. A device whose
+readings barely move has a tiny standard deviation, so 3-sigma is either paranoid or blind.
+In our run 2, `acc-sw-01` flagged **zero** times and missed its real anomaly completely, while
+`dist-sw-01` flagged **180** times to catch 2 real ones. One rule, both failure modes at once.
+
+## 3.3 Method 2 — Isolation Forest
+
+An unsupervised model. "Unsupervised" means nobody tells it what an anomaly looks like; it
+works it out from the shape of the data.
+
+**Analogy — twenty questions.** Imagine identifying one person in a crowd by asking yes/no
+questions. For an average person you need many questions: are they tall, are they wearing a
+coat, do they have a bag… For someone genuinely unusual — a person on stilts — one question
+does it. *Unusual things are easy to isolate.*
+
+Isolation Forest does exactly that, numerically. It slices the data with random cuts and counts
+how many cuts it takes to fence off each point. Points that get isolated in very few cuts are
+the anomalies.
+
+**Why bother, if 3-sigma is simpler?** Because 3-sigma can only ever ask *"is this number far
+from average?"* Isolation Forest can consider several things at once — the value, how fast it's
+changing, how far it's drifted, how jumpy it's been — and find combinations that are unusual
+even when no single number looks alarming. That's how you catch a memory leak: no reading is
+extreme, but the *combination* of steady rise with no plateau is.
+
+## 3.4 The hidden variable nobody talks about: what is "normal" measured over?
+
+This was our biggest discovery, and it's a genuinely good talking point.
+
+The 3-sigma arithmetic never changed across our experiments. What changed was the window it
+was calculated over:
+
+| "Normal" measured over | Recall |
+|---|---|
+| The entire 14-day stream | 76% |
+| Only the first 15% of the stream, then frozen | 84% |
+| A rolling 24-hour window that moves with the device | 88% |
+
+**Same three lines of arithmetic. Three different answers.**
+
+So a "static threshold" isn't one method — it's a formula *plus* a hidden choice, and that
+choice matters more than the formula. Which is exactly the argument for letting each device
+learn and continuously update its own baseline instead of us picking a window by hand.
+
+**Why the frozen baseline failed:** networks drift. Traffic patterns change, new users come on,
+software gets updated. A baseline learned in week one is wrong by week two, so everything looks
+anomalous. On `acc-sw-04` it flagged 3,088 of 3,428 rows — 90% of the data called abnormal.
+That's not detection, that's noise.
+
+## 3.5 Recall and flag rate — why we always quote both
+
+**Recall** = of the real anomalies, what fraction did we catch? 23 out of 24 = 96%.
+
+**Flag rate** = what fraction of all readings did we raise an alert on? 1,039 of ~55,000 = 1.9%.
+
+**Recall alone is a lie, and we can prove it.** In one of our runs we hit 84% recall — by
+flagging 90% of all rows. A system that alerts on almost everything will "catch" almost every
+anomaly. It is also completely useless.
+
+**Analogy.** A doctor who diagnoses every single patient with flu will correctly identify 100%
+of flu cases. Perfect recall, worthless doctor.
+
+**So: matched alert budget.** In our final test, each device's alert budget is set to *that
+device's own* 3-sigma flag rate. The model is allowed to raise exactly as many alerts as the
+classical method — not one more — and must choose its most suspicious points to spend them on.
+
+Result: **96% vs 88%, at an identical 1.9% flag rate.** Because the budgets are equal, the
+difference is detection *quality*, not alert volume. This is the most important sentence in the
+whole presentation.
+
+## 3.6 Derived features — why the model lost, then won
+
+When we first matched the budgets, **our model lost**: 83% against 3-sigma's 88%.
+
+**Why.** We were feeding Isolation Forest a single column — just the value. On one dimension
+there is nothing to isolate *with*. The only question available is "is this number far from the
+others," which is precisely what 3-sigma does, more directly and with less overhead. 3-sigma
+deserved to win, and it did.
+
+**The fix.** Give the model dimensions worth having. From the same raw stream we compute:
+
+| Feature | Meaning | The failure it exposes |
+|---|---|---|
+| `value` | the raw reading | outright spikes |
+| `delta` | change since the last reading | sudden jumps |
+| `deviation` | distance from the recent rolling average | slow drift away from normal |
+| `volatility` | how jumpy the recent window has been | instability, flapping |
+
+Now the model can spot a point that is *individually unremarkable* but whose combination is
+wrong — rising steadily, drifting from its own average, with no volatility. That combination is
+a memory leak, and it is invisible to any single-number rule.
+
+Result: 96%, at the same alert budget. **The model won when it was given something to reason
+with, not when it was given a bigger megaphone.**
+
+All four features are **trailing-only** — computed from past readings, never future ones. If we
+used future data the result would be worthless in production. Worth saying aloud if pushed.
+
+**Crucially, we did NOT improve the 3-sigma baseline.** It stays on the raw value alone,
+exactly as a real ops team would run it. Improving your own opponent makes the comparison
+meaningless.
+
+## 3.7 Blast radius — how the network map works
+
+`topology.json` holds 20 devices, each with a `parent`. That's a tree.
+
+```
+core-sw-01
+ ├─ dist-sw-01 ─ acc-sw-01, acc-sw-02, acc-sw-03
+ ├─ dist-sw-02 ─ acc-sw-04, acc-sw-05, acc-sw-06, ap-ctrl-01
+ ├─ fw-01
+ └─ rtr-edge-01
+```
+
+If `core-sw-01` fails, everything beneath it loses its path. Counting the descendants gives 15.
+That's the Impact signal — a graph walk, using `networkx`, about ten lines of code.
+
+The same tree gives us the what-if map (feature G) and alert suppression (feature H): if the
+parent is failing and 15 children alarm at the same moment, that isn't 16 problems, it's one.
+
+**Why 20 devices and 4 tiers matters.** Real enterprise networks are built in layers — core in
+the middle, distribution feeding buildings or floors, access where users plug in, plus edge
+routers, firewalls and a wireless controller. Our naming follows that convention exactly. It
+signals to an HPE panel that we modelled a real network rather than inventing `device1, device2`.
+
+---
+---
+
+# PART 4 — Done, not done, next
+
+Be exact about this. **Claiming more than we've built is the fastest way to lose Initial
+Progress marks**, because a panelist only has to ask one follow-up to find out.
+
+## Built and working today
+
+- Full detection pipeline — 6 experiment scripts, all runnable from the repo
+- `rolling_features_eval.py` — the final result, 96% vs 88% at matched budget, verified against
+  human-labelled ground truth
+- `topology.json` — 20 devices, 4 tiers, complete parent/child graph
+- `device_map.json` — 15 devices mapped to 15 real data streams
+- `docs/mockup.html` — the full console. Real working HTML, not an image
+- `docs/REMEDIES.md` — 12-rule symptom → cause → action table
+- `architecture.svg`, `README.md` with full results, public GitHub repo
+
+## Designed and mocked, not yet built
+
+Features B, C, D, F, G, H. All visible in the mockup, all with dates on the slide.
+
+**Say it in these words:** *"A is built and validated. B through H are designed, mocked and
+scheduled."* That's a complete answer and it is true.
+
+## Between now and 31 July
+
+| Dates | Work |
+|---|---|
+| 21–23 Jul | Collector + scoring service live on Supabase; blast radius (B) and peer comparison (D) — both come straight out of the topology graph, so they're the cheapest real features |
+| 24–26 Jul | Next.js console wired to realtime; React Flow map; forecast (C) and explainability (F) |
+| 27–28 Jul | Detector bakeoff — LOF, One-Class SVM, ensemble; what-if map (G); alert suppression (H) |
+| 29–30 Jul | Freeze, final README, rehearsal — **code complete a day early** |
+| 31 Jul | Live demo |
+
+**Why the detector bakeoff is scheduled late, not early.** The detector is a swappable component
+behind a fixed interface: anything that takes a stream and returns flagged points drops into the
+same slot. So nothing else in the build waits on which model wins. That's deliberate architecture,
+not procrastination — and it's a good answer if someone asks why we haven't finished choosing.
+
+## Why the demo replays data instead of polling live devices
+
+Two reasons, both worth saying:
+
+1. **Healthy devices produce nothing to detect.** Polling a lab switch that is working fine gives
+   us no anomalies and no labels. We could not put an honest accuracy number on anything.
+2. **Replay is reproducible.** Same data, same result, every single run. On demo day that's a
+   feature, not a compromise — nothing depends on a device misbehaving on cue.
+
+And architecturally it doesn't matter, because of the swap-in guarantee in 2.3.
+
+---
+---
+
+# PART 5 — What we achieved, and what went wrong on the way
+
+The route is the story. **Do not present the 96% as if it arrived on the first try** — it's more
+convincing *because* of what came before it.
+
+## The six experiments
+
+| # | What we tried | Result | What happened |
+|---|---|---|---|
+| 1 | Isolation Forest on the full stream | 88% | Looked great. Was cheating — trained and scored on the same data, so it had already seen the answers. |
+| 2 | Classical 3-sigma, full stream | 76% | Lower recall, but the *behaviour* was the finding: blind on quiet devices, screaming on noisy ones. |
+| 3 | Proper temporal split, both methods | 84% / 84% | A dead tie — because both had degenerated into flagging nearly everything. **This taught us to always report flag rate.** |
+| 4 | Rolling 24h baseline, both methods | 92% / 88% | We won, but with 3× the alerts. Not a clean win, so we didn't claim it. |
+| 5 | Matched the alert budgets | 83% / 88% | **We lost.** The model was fed one column and had nothing to isolate with. |
+| 6 | Added derived features, kept budgets matched | **96% / 88%** | Won properly, at an identical flag rate. |
+
+## The two bugs worth mentioning
+
+Both are good answers to "what was hard?", because they show we actually read our output
+instead of trusting the summary line.
+
+**Bug 1 — we accidentally silenced our own demo device.** Budgets were rounded to whole
+numbers, and `core-sw-01`'s budget rounded down to **zero**. The most important device on the
+network was given permission to raise no alerts at all — and the totals line still looked fine.
+Fixed with a floor of one flag per chunk.
+
+**Bug 2 — flat data blew the budget.** When a metric is perfectly flat, many points score
+identically. Our code flagged every tie, so `srv-mon-01` raised 542 alerts against a budget of
+107 — five times over, silently. Fixed with exact rank selection.
+
+**The lesson under both:** the totals line looked reasonable in both cases. We only caught them
+by reading the per-device table. That's a genuinely good thing to say to an engineering panel.
+
+## What we're proud of
+
+- Everything is validated against **someone else's labels**, not ours
+- Every run is still in the repo, **including the two we lost**
+- Every number is quoted with its flag rate
+- We know exactly what we haven't built, and it's written down
+
+## Known limitations (say them before you're asked)
+
+- **We miss 1 of 24 windows.** It sits in a low-variance stretch where the anomaly is small
+  relative to the device's own noise floor. We could catch it by widening the budget — that's
+  exactly the trade we refuse to make quietly.
+- **Isolation Forest is a baseline, not a verdict.** LOF, One-Class SVM and an ensemble get
+  tested before the 31st.
+- **Root causes are written by us, not learned.** Our dataset labels *when* things went wrong,
+  never *why*. No public dataset labels causes. So detection is validated; diagnosis is
+  engineered. We keep those two claims apart deliberately.
+- **One metric per device today.** Expanding to 3–4 per device is the only planned data change.
+- **Not load-tested.** We chose 15 devices so we could validate accuracy properly rather than
+  quote a scale number nobody had checked.
+
+---
+---
+
+# PART 6 — The script
+
+Nine slides, roughly 8 minutes. Split the slides among yourselves.
+
+These are speaking lines, not lines to memorise word for word. Say them in your own voice, but
+keep the **bolded** phrases exactly — those are the ones that do the work.
+
+---
+
+### Slide 1 — Title
+
+> NetPulse. The problem statement asks for a device health scorer, and we want to be upfront
+> about how we read that.
+>
+> A health score tells an operator a device is sick. It doesn't tell them whether to get out of
+> bed at 3am. So we built something that answers the question underneath it: **what will fail,
+> when, and what breaks with it.**
+>
+> Four numbers, then we'll earn them. **96% recall against real human-labelled anomalies.**
+> 20 devices across a proper four-tier topology. Three independent signals instead of one
+> weighted guess. And zero invented failures — every anomaly we detect was labelled by somebody
+> else, before we ever saw it.
+>
+> The repo is public and on screen. Everything we claim today, you can clone and run.
+
+*Pause after "zero invented failures." Let it land — most teams cannot say it.*
+
+---
+
+### Slide 2 — Problem understanding
+
+> Three failures that up/down monitoring cannot see.
+>
+> A **memory leak** — the device stays UP for days while memory creeps up two percent an hour,
+> and it dies at 3am on a Sunday. **Interface error creep** — the link is UP, but errors are
+> climbing, and users are already feeling it. **A silent reboot loop** — the device restarts
+> every few hours, and every single poll catches it UP. The dashboard is green throughout.
+>
+> Now the awkward part, and we'd rather raise it than have you raise it. The brief suggests a
+> weighted formula. We can't defend one. Why is CPU nought point four and memory nought point
+> three? We picked them — that's an opinion dressed up as a measurement.
+>
+> And a raw score ignores what's normal *for that device*. A core switch that always runs at 70%
+> CPU is fine at 70%. An access switch that normally sits at 12% is in trouble at 40%. One shared
+> formula calls the healthy device sick and the sick device healthy.
+>
+> At the bottom are the three questions an operator actually asks. **A health score answers none
+> of them.**
+
+---
+
+### Slide 3 — Proposed solution
+
+> So we compute three things instead of one, and each one answers a question.
+>
+> **Health** — how bad is it? A model learns each device's own baseline and measures deviation
+> from *that*. No shared thresholds, no weights to defend.
+>
+> **Urgency** — how long have I got? We extend the trend to where it crosses critical. Four
+> hours, not "it's red now."
+>
+> **Impact** — what breaks with it? A walk over the topology graph. Fifteen devices go dark if
+> this one fails.
+>
+> Multiply them, and you get that line: **priority 98, core-sw-01, four hours to critical,
+> fifteen devices downstream, memory driving 71% of it.** That is a sentence an operator can act
+> on at 3am. A score of 24 is not.
+>
+> Multiplication rather than addition, deliberately — a nearly-dead device with nothing behind it
+> should stay low, and a mildly-degraded core switch with fifteen devices behind it should jump
+> to the top.
+>
+> And on the competition — SolarWinds, PRTG and Nagios all give you a health score. **None of them
+> rank by blast radius, forecast time to failure, or collapse an alert storm.** We're not claiming
+> to beat them on polling scale. We're claiming a different output.
+
+---
+
+### Slide 4 — Data strategy
+
+> This slide exists to kill one question before it's asked: *you invented your own anomalies, so
+> of course you detect them.*
+>
+> We didn't. The metrics are the **Numenta Anomaly Benchmark** — real AWS server telemetry with
+> anomaly windows labelled by humans and published by someone else. Fifteen devices, about four
+> thousand readings each, sixty thousand real data points, fourteen days per stream, twenty-five
+> labelled windows. **We are graded against somebody else's answer key.**
+>
+> On the right is how it physically reaches the score: a real stream per device, replayed at
+> thirty times speed, emitted under real SNMP object names — ifInErrors, hrProcessorLoad,
+> hrStorageUsed, sysUpTime — into the scoring core.
+>
+> Now the two limits, from us rather than from you. **The topology is synthetic** — no public
+> dataset ships a network graph alongside labelled telemetry. And five of the twenty devices
+> replay time-offset copies purely to populate that graph; **they're excluded from every recall
+> number we quote.** Fifteen devices carry real independent streams.
+>
+> And why we replay instead of polling live on demo day: a healthy lab switch gives us nothing to
+> detect and nothing to be judged against. Replay gives you a reproducible failure with a known
+> right answer.
+
+---
+
+### Slide 5 — Architecture
+
+> Left to right. Real labelled telemetry, replayed through a pluggable collector, into a scoring
+> core that does anomaly detection, forecasting and graph analysis, out to Supabase, which pushes
+> realtime updates into a Next.js console.
+>
+> Two decisions carry the weight here.
+>
+> **The swap-in guarantee.** Every metric travels under its real SNMP object name. Swap the
+> replay collector for a live pysnmp poller and one class changes and nothing downstream does.
+> The schema is real; only the source is simulated.
+>
+> **Topology is an input, not decoration.** One graph powers blast radius, the what-if map and
+> alert suppression — **three features out of one data structure**, which is why they land in the
+> same week instead of three separate ones.
+>
+> Power BI isn't in the build. Scores land in Postgres so BI tools attach directly, and we'd
+> rather call that export-ready than claim an integration we haven't written.
+
+---
+
+### Slide 6 — Scope and console
+
+> Seven capabilities, and we want to be precise about status.
+>
+> **A is built and validated. B through H are designed, mocked and scheduled** — and the dates
+> beside them are real, not decorative.
+>
+> On the right is not a wireframe. That's working HTML, in the repo, and it's the exact screen
+> we'll demo on the 31st. Priority list ranked by health times urgency times impact. Health bars.
+> A predicted column. Blast radius as chips. And a recommended action, which comes from a
+> twelve-rule table in the repo, not from hardcoded text.
+>
+> If you look at one feature, look at **D, peer comparison**. "Interface error rate 8.2 times
+> higher than its eleven peer switches." Same role, same site, same config — so an outlier is
+> bad hardware or bad config, and we can tell the operator which. **That's the difference between
+> "this device is busy" and "this device is broken."**
+
+---
+
+### Slide 7 — Technical feasibility
+
+*Slow down. This is the slide that decides the round.*
+
+> That's a real terminal, on our machine, and the script is in the repo.
+>
+> The headline: **given derived features and an equal alert budget, self-baselining detection
+> catches two failures the classical threshold misses. 96% against 88%, at an identical 1.9%
+> flag rate.**
+>
+> The phrase that matters is **matched alert budget**. Each device's budget is set to that
+> device's *own* 3-sigma flag rate — the model may raise exactly as many alerts as the classical
+> method and not one more. 1,039 flags against 1,023. So the recall difference is **detection
+> quality, not us shouting louder**.
+>
+> And the boundary, before you ask for it. Recall on its own is gameable, and we can prove it —
+> one of our earlier runs hit 84% recall by flagging 90% of all rows. That result is still in the
+> repo. Which is why **every number we quote in this deck carries its flag rate beside it**.
+>
+> Isolation Forest is a validated baseline, not our final answer. LOF, One-Class SVM and an
+> ensemble get benchmarked against the same labels before the 31st.
+
+---
+
+### Slide 8 — How we got to 96%
+
+*The point of this slide is credibility. Deliver it with some enjoyment — it's a good story.*
+
+> The 96% is only worth anything if you can see where it came from. Six experiments.
+>
+> Run one was our first proof of concept — 88%, and it was cheating. It trained and scored on the
+> same data, so it had already seen the answers.
+>
+> Run two, the classical threshold, 76%. The interesting part wasn't the recall, it was the
+> behaviour: one global rule was **blind on quiet devices and screaming on noisy ones**. One
+> device flagged zero times and missed its real anomaly entirely. Another flagged 180 times to
+> catch two.
+>
+> Run three added a proper temporal split, and the two methods **tied** at 84% — because both had
+> degenerated into flagging almost everything. That gave us the rule we've followed since:
+> **recall alone is gameable. Always report the flag rate beside it.**
+>
+> Run four made the baseline roll with the device. We caught one more window, but raised three
+> times the alerts. Not a clean win, so we didn't claim it.
+>
+> Run five is the one we're most glad to show you. We matched the alert budgets — **and our model
+> lost. 83 against 88.** The diagnosis: we'd been feeding it a single column, and on one dimension
+> there is nothing to isolate with. Three-sigma was the better tool and it correctly won.
+>
+> Run six fixed the actual problem. Give the model dimensions worth reasoning about — rate of
+> change, drift from its own average, volatility — and hold it to each device's own budget.
+> **96 against 88, same flag rate.**
+>
+> And the thing we learned that we didn't expect: a static threshold isn't one method. It's a
+> formula **plus a hidden choice of what "normal" is measured over.** The same three lines of
+> arithmetic gave us 76, 84 and 88 percent depending only on that choice. Which is the whole
+> argument for letting every device learn its own.
+>
+> **If you're wondering whether we tuned until we liked the number — the classical method matched
+> or beat us twice first, and both of those losses are committed in the repo.**
+
+---
+
+### Slide 9 — Plan, team, demo
+
+> On the left, what you can clone right now — the repo, all six experiment scripts including the
+> two we lost, the topology, and the working console mockup.
+>
+> On the right, the sequence to the 31st. The ordering is deliberate: **blast radius and peer
+> comparison come first because both fall straight out of the topology graph we've already
+> built** — cheapest real features we have. The detector bakeoff sits late on purpose, because
+> the detector is a swappable component behind a fixed interface, so nothing else in the build
+> waits on which model wins.
+>
+> The line that matters: **code complete on the 30th, a day early.** The 31st is rehearsal, not
+> scrambling.
+>
+> Four of us, one owner per layer, and every member can speak to any slide in this deck.
+>
+> And the demo. Fifteen devices replaying healthy at thirty times speed. We trigger a real
+> anomaly sequence on core-sw-01, and inside about **thirty-five seconds** you'll watch it slide
+> amber, jump to the top of the priority list with a four-hour forecast and fifteen downstream
+> devices, light up the blast map, and **collapse fifteen child alerts into one incident.**
+>
+> Which is the whole thing in one sentence: **we don't just score health — we tell you what will
+> fail, when, and what breaks with it.**
+
+*Stop there. Don't add a thank-you paragraph.*
+
+---
+---
+
+# PART 7 — The questions they will ask
+
+**Rules:** whoever presented the slide answers the question. Nobody adds "and also…" unless
+handed off. If nobody knows — *"we don't know, we'd have to test it"* — then stop talking.
+
+---
+
+**Q1. "The brief asked for a weighted formula. You didn't do it."**
+
+We did — it's displayed as a second column beside our score. What we didn't do is *rely* on it.
+It requires us to defend why CPU is 0.4 and memory 0.3, and nobody can. And a raw score ignores
+that a switch idling at 70% may be normal while one at 40% is broken. It's our baseline, not our
+product. We implement it, display it, and beat it.
+
+---
+
+**Q2. "Did you just tune until you liked the number?"** ← *the dangerous one*
+
+The opposite happened. The classical threshold matched or beat us twice first. Run 3 tied at 84%.
+In run 5 we matched the alert budgets and our model lost, 83 to 88. Both are committed in the
+repo — we didn't delete the losses. The 96% only came after we diagnosed why we were losing. If
+we were chasing a headline we'd have stopped at run 1, which said 88% on day one.
+
+---
+
+**Q3. "Isn't 96% just because you flag more points?"**
+
+No — that's the entire design of the final test. Each device's budget is set to its own
+rolling-sigma flag rate, so the model may raise exactly as many alerts as the classical method.
+1,039 against 1,023, both 1.9% of rows. Matched budgets mean the difference is detection quality,
+not volume. We learned this the hard way — an earlier run hit 84% recall by flagging 90% of rows.
+
+---
+
+**Q4. "This isn't SNMP, you're replaying CSVs."**
+
+Correct, and it's on slide 4. Why: live polling of healthy devices produces no anomalies and no
+labels, so we couldn't put an honest number on accuracy. Why it doesn't matter architecturally:
+every metric travels under its real SNMP object name through a pluggable collector. Swapping in a
+live pysnmp poller changes one class and nothing downstream. The schema is real; only the source
+is simulated.
+
+---
+
+**Q5. "Your topology is fake, so blast radius is meaningless."**
+
+The topology is synthetic and we say so up front — no public dataset ships a graph alongside
+labelled telemetry. But the logic is real: a graph walk from a failed node to its dependents.
+Point it at a real CMDB or LLDP discovery and the same code gives the same answer. We also
+disclose that five of the twenty devices are time-offset copies and are excluded from every
+recall number.
+
+---
+
+**Q6. "Does this scale to 10,000 devices?"**
+
+Detection is per-device and independent — no cross-device model to retrain, so it parallelises
+naturally. The per-device cost is a rolling refit, milliseconds. At that scale the bottleneck is
+polling I/O and database writes, which is why scoring is a separate service writing to Postgres
+rather than logic in the UI. Honestly: we haven't load-tested it. We scoped 15 devices so we
+could validate accuracy properly instead of quoting a scale number nobody had checked.
+
+---
+
+**Q7. "Why Isolation Forest? Why not deep learning?"**
+
+It's a validated baseline, not our final answer — LOF, One-Class SVM and an ensemble are
+scheduled before the 31st. On deep learning specifically: an LSTM needs lots of data per device
+and, critically, labelled anomalies to train on. We have 25 labelled windows total. That's ground
+truth for *evaluation*, nowhere near enough for supervised training. Unsupervised methods that
+learn each device's own baseline are the right family here. And the detector is swappable behind
+a fixed interface, so the rest of the build never waits on the answer.
+
+---
+
+**Q8. "Your dashboard says 'restart the process.' How does your model know it's a memory leak?"**
+
+It doesn't, and we keep those claims separate on purpose. Our dataset labels anomaly *windows*,
+not *causes* — no public dataset labels causes. Detection is validated against ground truth; the
+remedy mapping is expert-authored, a twelve-rule table keyed by the shape of the anomaly. Worth
+adding: training a cause classifier here would be circular — we'd have to generate the labels
+from those same rules, so the model could only reproduce them, never beat them. Detection is
+where ML helps; diagnosis is a rule base, which is how Cisco and SolarWinds do it too.
+
+---
+
+**Q9. "What's actually working versus what's a picture?"** ← *answer fast and flatly*
+
+Working: the whole detection pipeline, six scripts, final one at 96% against ground truth,
+runnable right now. Topology graph built. The console is working HTML — real markup, not an
+image — but not yet wired to live data. Not built: blast radius scoring, forecast, peer
+comparison, what-if map, alert suppression. All five designed and scheduled with dates on slide
+6. We'd rather show an honest scope than claim a demo we can't run.
+
+---
+
+**Q10. "You miss one window. Which, and why?"**
+
+23 of 24. The miss sits in a low-variance stretch — the anomaly is small relative to that
+device's own noise floor, so at a 1.9% budget it doesn't rank in the top flagged points. We could
+catch it by widening the budget, but that's exactly the trade we refuse to make silently. It's
+also the shape of miss the bakeoff targets: LOF handles local-density anomalies better than
+Isolation Forest.
+
+---
+
+### Quick-fire
+
+| Question | Answer |
+|---|---|
+| Why Supabase? | Postgres with realtime built in, free tier, no infrastructure to manage. Four people, eleven days. |
+| Why Next.js? | Realtime, data-dense UI. React Flow and Recharts both need React; Vercel deploys in one step. |
+| Is Power BI in the build? | No. Scores land in Postgres so BI tools attach directly. We call that export-ready and claim nothing more. |
+| How do you handle false positives? | Matched budgets hold the flag rate at 1.9%, and correlated suppression collapses storms. We don't claim zero — we claim a budget the operator controls. |
+| Why is there no feature E? | Our internal register skipped it and we kept the letters stable rather than renumber files mid-build. |
+| What if the demo fails on the 31st? | Replay is deterministic — same data, same result, every run. Another reason we chose it over live polling. |
+| How is this different from Nagios? | Nagios tells you a device is unhealthy. We rank by what breaks with it, forecast when, and suppress the storm. |
+| Who wrote the code? | Split by layer — detection and scoring, database and UI, solution design, topology and QA. Commit history reflects it. |
+
+---
+---
+
+# PART 8 — Before the call
+
+- [ ] Team leader joins as **`T009_TrekTech`**
+- [ ] Repo open in a second tab, on the file list
+- [ ] `docs/mockup.html` open in a third tab, in case they want to see it live
+- [ ] Deck in presenter view so the notes are visible
+- [ ] Everyone has read **Parts 3.5, 3.6 and 5** — that's where the questions come from
+- [ ] **One full run-through out loud, timed** — not silent reading
+- [ ] Stable connection, mic tested, cameras on
+
+### The three sentences everyone must be able to say cold
+
+1. *"We don't just score health — we tell you what will fail, when, and what breaks with it."*
+2. *"96% versus 88% recall at an identical 1.9% flag rate — the model catches two failures the
+   classical threshold misses, at the same alert budget."*
+3. *"A is built and validated. B through H are designed, mocked and scheduled."*

@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="760" viewBox="0 0 1440 760" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect width="1440" height="760" fill="#FFFFFF"/>
+<text x="40" y="52" font-size="13" font-weight="700" fill="#6B7280" letter-spacing="1.6">NETPULSE — SOLUTION ARCHITECTURE</text>
+<text x="40" y="90" font-size="30" font-weight="700" fill="#111827">SNMP-native schema, end to end</text>
+<text x="40" y="118" font-size="14" fill="#6B7280">Real labelled telemetry in · a ranked action list out. The data source is the only simulated part, and it is pluggable.</text>
+<rect x="40" y="150" width="252" height="385" rx="8" fill="#F7F9FA" stroke="#DDE2E8"/>
+<text x="56" y="176" font-size="11" font-weight="700" fill="#6B7280" letter-spacing="1.2">01</text>
+<text x="56" y="200" font-size="15" font-weight="700" fill="#1B3A5C" letter-spacing="0.6">SOURCES</text>
+<text x="56" y="226" font-size="12" font-weight="700" fill="#111827">NAB realAWSCloudwatch</text>
+<text x="56" y="242" font-size="11" fill="#6B7280">15 devices carry independent real</text>
+<text x="56" y="256" font-size="11" fill="#6B7280">AWS telemetry with human-labelled</text>
+<text x="56" y="270" font-size="11" fill="#6B7280">ground-truth anomaly windows.</text>
+<text x="56" y="290" font-size="12" font-weight="700" fill="#111827">topology.json</text>
+<text x="56" y="306" font-size="11" fill="#6B7280">20 devices, 4 tiers. Core / dist /</text>
+<text x="56" y="320" font-size="11" fill="#6B7280">access plus router, firewall, WLC.</text>
+<text x="56" y="334" font-size="11" fill="#6B7280">Authored by us.</text>
+<rect x="54" y="345" width="224" height="36" rx="4" fill="#FFFFFF" stroke="#DDE2E8"/>
+<text x="62" y="357" font-size="10.5" font-weight="700" fill="#1B3A5C">~60k real points · 25 labelled</text>
+<text x="62" y="370" font-size="10.5" font-weight="700" fill="#1B3A5C">windows</text>
+<path d="M 295 342.5 L 313 342.5" stroke="#9AA4AF" stroke-width="1.6"/>
+<path d="M 313 342.5 l -6 -4.5 l 0 9 z" fill="#9AA4AF"/>
+<rect x="316" y="150" width="252" height="385" rx="8" fill="#F7F9FA" stroke="#DDE2E8"/>
+<text x="332" y="176" font-size="11" font-weight="700" fill="#6B7280" letter-spacing="1.2">02</text>
+<text x="332" y="200" font-size="15" font-weight="700" fill="#1B3A5C" letter-spacing="0.6">COLLECTOR</text>
+<text x="332" y="218" font-size="10.5" fill="#6B7280" font-style="italic">pluggable</text>
+<text x="332" y="242" font-size="12" font-weight="700" fill="#111827">Replay engine</text>
+<text x="332" y="258" font-size="11" fill="#6B7280">1 second of demo time = 30 minutes</text>
+<text x="332" y="272" font-size="11" fill="#6B7280">of real telemetry (30x</text>
+<text x="332" y="286" font-size="11" fill="#6B7280">compression).</text>
+<text x="332" y="306" font-size="12" font-weight="700" fill="#111827">SNMP-native emit</text>
+<text x="338" y="322" font-size="10.5" font-family="SFMono-Regular, Menlo, Consolas, monospace" fill="#1B3A5C">ifInErrors</text>
+<text x="338" y="336" font-size="10.5" font-family="SFMono-Regular, Menlo, Consolas, monospace" fill="#1B3A5C">hrProcessorLoad</text>
+<text x="338" y="350" font-size="10.5" font-family="SFMono-Regular, Menlo, Consolas, monospace" fill="#1B3A5C">hrStorageUsed</text>
+<text x="338" y="364" font-size="10.5" font-family="SFMono-Regular, Menlo, Consolas, monospace" fill="#1B3A5C">sysUpTime</text>
+<text x="338" y="378" font-size="10.5" font-family="SFMono-Regular, Menlo, Consolas, monospace" fill="#1B3A5C">ifOperStatus</text>
+<rect x="330" y="389" width="224" height="36" rx="4" fill="#FFFFFF" stroke="#DDE2E8"/>
+<text x="338" y="401" font-size="10.5" font-weight="700" fill="#1B3A5C">swap point — live pysnmp poller</text>
+<text x="338" y="414" font-size="10.5" font-weight="700" fill="#1B3A5C">drops in here</text>
+<path d="M 571 342.5 L 589 342.5" stroke="#9AA4AF" stroke-width="1.6"/>
+<path d="M 589 342.5 l -6 -4.5 l 0 9 z" fill="#9AA4AF"/>
+<rect x="592" y="150" width="252" height="385" rx="8" fill="#EDF3F8" stroke="#DDE2E8"/>
+<text x="608" y="176" font-size="11" font-weight="700" fill="#6B7280" letter-spacing="1.2">03</text>
+<text x="608" y="200" font-size="15" font-weight="700" fill="#1B3A5C" letter-spacing="0.6">SCORING CORE</text>
+<text x="608" y="218" font-size="10.5" fill="#6B7280" font-style="italic">python</text>
+<text x="608" y="242" font-size="12" font-weight="700" fill="#111827">Health — how bad is it?</text>
+<text x="608" y="258" font-size="11" fill="#6B7280">IsolationForest on a rolling 24h</text>
+<text x="608" y="272" font-size="11" fill="#6B7280">baseline. Features: value, delta,</text>
+<text x="608" y="286" font-size="11" fill="#6B7280">deviation, volatility. Per-device</text>
+<text x="608" y="300" font-size="11" fill="#6B7280">alert budget.</text>
+<text x="608" y="320" font-size="12" font-weight="700" fill="#111827">Urgency — how long have I got?</text>
+<text x="608" y="336" font-size="11" fill="#6B7280">Trend extrapolation on the</text>
+<text x="608" y="350" font-size="11" fill="#6B7280">degrading metric.</text>
+<text x="608" y="370" font-size="12" font-weight="700" fill="#111827">Impact — what breaks with it?</text>
+<text x="608" y="386" font-size="11" fill="#6B7280">networkx walk over the topology</text>
+<text x="608" y="400" font-size="11" fill="#6B7280">graph.</text>
+<text x="608" y="420" font-size="12" font-weight="700" fill="#111827">Remedy lookup</text>
+<text x="608" y="436" font-size="11" fill="#6B7280">docs/REMEDIES.md — 12 signature</text>
+<text x="608" y="450" font-size="11" fill="#6B7280">rules.</text>
+<rect x="606" y="461" width="224" height="36" rx="4" fill="#FFFFFF" stroke="#DDE2E8"/>
+<text x="614" y="473" font-size="10.5" font-weight="700" fill="#1B3A5C">priority = health x urgency x</text>
+<text x="614" y="486" font-size="10.5" font-weight="700" fill="#1B3A5C">impact</text>
+<path d="M 847 342.5 L 865 342.5" stroke="#9AA4AF" stroke-width="1.6"/>
+<path d="M 865 342.5 l -6 -4.5 l 0 9 z" fill="#9AA4AF"/>
+<rect x="868" y="150" width="252" height="385" rx="8" fill="#F7F9FA" stroke="#DDE2E8"/>
+<text x="884" y="176" font-size="11" font-weight="700" fill="#6B7280" letter-spacing="1.2">04</text>
+<text x="884" y="200" font-size="15" font-weight="700" fill="#1B3A5C" letter-spacing="0.6">DATA LAYER</text>
+<text x="884" y="218" font-size="10.5" fill="#6B7280" font-style="italic">supabase</text>
+<text x="884" y="242" font-size="12" font-weight="700" fill="#111827">Postgres</text>
+<text x="884" y="258" font-size="11" fill="#6B7280">device_scores · metrics ·</text>
+<text x="884" y="272" font-size="11" fill="#6B7280">incidents · topology_edges</text>
+<text x="884" y="292" font-size="12" font-weight="700" fill="#111827">Realtime channel</text>
+<text x="884" y="308" font-size="11" fill="#6B7280">Score changes pushed to the</text>
+<text x="884" y="322" font-size="11" fill="#6B7280">console; no polling from the</text>
+<text x="884" y="336" font-size="11" fill="#6B7280">browser.</text>
+<rect x="882" y="347" width="224" height="36" rx="4" fill="#FFFFFF" stroke="#DDE2E8"/>
+<text x="890" y="359" font-size="10.5" font-weight="700" fill="#1B3A5C">BI export ready — Power BI /</text>
+<text x="890" y="372" font-size="10.5" font-weight="700" fill="#1B3A5C">Grafana attach directly</text>
+<path d="M 1123 342.5 L 1141 342.5" stroke="#9AA4AF" stroke-width="1.6"/>
+<path d="M 1141 342.5 l -6 -4.5 l 0 9 z" fill="#9AA4AF"/>
+<rect x="1144" y="150" width="252" height="385" rx="8" fill="#F7F9FA" stroke="#DDE2E8"/>
+<text x="1160" y="176" font-size="11" font-weight="700" fill="#6B7280" letter-spacing="1.2">05</text>
+<text x="1160" y="200" font-size="15" font-weight="700" fill="#1B3A5C" letter-spacing="0.6">CONSOLE</text>
+<text x="1160" y="218" font-size="10.5" fill="#6B7280" font-style="italic">next.js on vercel</text>
+<text x="1160" y="242" font-size="12" font-weight="700" fill="#111827">Priority action list</text>
+<text x="1160" y="258" font-size="11" fill="#6B7280">Ranked by health x urgency x</text>
+<text x="1160" y="272" font-size="11" fill="#6B7280">impact, not by alphabet or</text>
+<text x="1160" y="286" font-size="11" fill="#6B7280">timestamp.</text>
+<text x="1160" y="306" font-size="12" font-weight="700" fill="#111827">Per-metric drill-down</text>
+<text x="1160" y="322" font-size="11" fill="#6B7280">Recharts — 48h trend, anomaly</text>
+<text x="1160" y="336" font-size="11" fill="#6B7280">window shaded, critical threshold</text>
+<text x="1160" y="350" font-size="11" fill="#6B7280">marked.</text>
+<text x="1160" y="370" font-size="12" font-weight="700" fill="#111827">Blast-radius map</text>
+<text x="1160" y="386" font-size="11" fill="#6B7280">React Flow — topology with</text>
+<text x="1160" y="400" font-size="11" fill="#6B7280">downstream impact highlighted.</text>
+<rect x="1158" y="411" width="224" height="36" rx="4" fill="#FFFFFF" stroke="#DDE2E8"/>
+<text x="1166" y="423" font-size="10.5" font-weight="700" fill="#1B3A5C">15 child alerts collapse into 1</text>
+<text x="1166" y="436" font-size="10.5" font-weight="700" fill="#1B3A5C">grouped incident</text>
+<rect x="40" y="565" width="440.0" height="118" rx="8" fill="#F7F9FA" stroke="#DDE2E8"/>
+<text x="58" y="591" font-size="10.5" font-weight="700" fill="#1B3A5C" letter-spacing="1.1">THE SWAP-IN GUARANTEE</text>
+<text x="58" y="613" font-size="11.5" fill="#111827">Every metric travels under its real SNMP object name.</text>
+<text x="58" y="629" font-size="11.5" fill="#111827">Replacing the replay collector with a live pysnmp poller</text>
+<text x="58" y="645" font-size="11.5" fill="#111827">changes one class and nothing downstream. The schema is real;</text>
+<text x="58" y="661" font-size="11.5" fill="#111827">only the source is simulated.</text>
+<rect x="500.0" y="565" width="440.0" height="118" rx="8" fill="#EDF6F0" stroke="#DDE2E8"/>
+<text x="518.0" y="591" font-size="10.5" font-weight="700" fill="#1E7A47" letter-spacing="1.1">VALIDATED, NOT ASSERTED</text>
+<text x="518.0" y="613" font-size="11.5" fill="#111827">96% recall vs human-labelled NAB ground truth at a 1.9% flag</text>
+<text x="518.0" y="629" font-size="11.5" fill="#111827">rate, against 88% for a classical rolling 3-sigma threshold at</text>
+<text x="518.0" y="645" font-size="11.5" fill="#111827">the same alert budget. Reproduce:</text>
+<text x="518.0" y="661" font-size="11.5" fill="#111827">scripts/rolling_features_eval.py</text>
+<rect x="960.0" y="565" width="440.0" height="118" rx="8" fill="#FBF6EC" stroke="#DDE2E8"/>
+<text x="978.0" y="591" font-size="10.5" font-weight="700" fill="#B47407" letter-spacing="1.1">TOPOLOGY IS AN INPUT, NOT DECORATION</text>
+<text x="978.0" y="613" font-size="11.5" fill="#111827">One graph powers blast radius, the what-if failure map and</text>
+<text x="978.0" y="629" font-size="11.5" fill="#111827">correlated alert suppression. Three features from a single</text>
+<text x="978.0" y="645" font-size="11.5" fill="#111827">data structure, which is why they land in the same week.</text>
+<text x="40" y="717" font-size="11" fill="#6B7280">Team T009 · TrekTech  ·  github.com/PotatoPatata1809/network-device-health-scorer</text>
+</svg>
