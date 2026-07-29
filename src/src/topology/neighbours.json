@@ -1,0 +1,635 @@
+{
+ "_provenance": "AUTHORED LLDP neighbour data (lldpRemTable shape). SMD ships no connectivity, so sightings are hand-authored, NOT discovered. A live LLDP/CDP SNMP walk of this same shape swaps in with no downstream change. Sightings are undirected; direction is computed by build_topology.py.",
+ "devices": [
+  {
+   "sys_name": "acc-sw-01",
+   "device_type": "access-switch",
+   "site": "DC-A",
+   "chassis_id": "00:1b:cc:27:09:a7",
+   "smd_machine": "machine-1-6",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-01",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:9a:01:a7:d1",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "srv-mon-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:8f:df:6b:8e",
+     "capabilities": "Station"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-02",
+   "device_type": "access-switch",
+   "site": "DC-A",
+   "chassis_id": "00:1b:b9:e8:9c:c7",
+   "smd_machine": "machine-1-7",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-01",
+     "remote_port": "GigabitEthernet1/0/3",
+     "remote_chassis_id": "00:1b:9a:01:a7:d1",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "srv-app-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:d4:f2:c5:d5",
+     "capabilities": "Station"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-03",
+   "device_type": "access-switch",
+   "site": "DC-A",
+   "chassis_id": "00:1b:1b:0c:bd:86",
+   "smd_machine": "machine-1-8",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-01",
+     "remote_port": "GigabitEthernet1/0/4",
+     "remote_chassis_id": "00:1b:9a:01:a7:d1",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-04",
+   "device_type": "access-switch",
+   "site": "DC-A",
+   "chassis_id": "00:1b:fa:a7:48:fc",
+   "smd_machine": "machine-2-1",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-02",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:53:32:d0:12",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-05",
+   "device_type": "access-switch",
+   "site": "DC-A",
+   "chassis_id": "00:1b:f0:c7:ec:d2",
+   "smd_machine": "machine-2-2",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-02",
+     "remote_port": "GigabitEthernet1/0/3",
+     "remote_chassis_id": "00:1b:53:32:d0:12",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-06",
+   "device_type": "access-switch",
+   "site": "DC-A",
+   "chassis_id": "00:1b:4a:01:86:dc",
+   "smd_machine": "machine-2-3",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-02",
+     "remote_port": "GigabitEthernet1/0/4",
+     "remote_chassis_id": "00:1b:53:32:d0:12",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-07",
+   "device_type": "access-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:60:08:23:27",
+   "smd_machine": "machine-3-3",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-03",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:13:e0:98:08",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "srv-log-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:8e:d3:0d:a5",
+     "capabilities": "Station"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-08",
+   "device_type": "access-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:b6:51:e5:7c",
+   "smd_machine": "machine-3-4",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-03",
+     "remote_port": "GigabitEthernet1/0/3",
+     "remote_chassis_id": "00:1b:13:e0:98:08",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-09",
+   "device_type": "access-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:cc:61:69:0a",
+   "smd_machine": "machine-3-5",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-03",
+     "remote_port": "GigabitEthernet1/0/4",
+     "remote_chassis_id": "00:1b:13:e0:98:08",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-10",
+   "device_type": "access-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:b8:af:b5:a6",
+   "smd_machine": "machine-3-6",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-04",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:d5:40:64:98",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-11",
+   "device_type": "access-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:ec:d2:ae:a0",
+   "smd_machine": "machine-3-7",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-04",
+     "remote_port": "GigabitEthernet1/0/3",
+     "remote_chassis_id": "00:1b:d5:40:64:98",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-12",
+   "device_type": "access-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:73:87:ee:dc",
+   "smd_machine": "machine-3-8",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-04",
+     "remote_port": "GigabitEthernet1/0/4",
+     "remote_chassis_id": "00:1b:d5:40:64:98",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "acc-sw-13",
+   "device_type": "access-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:8e:fe:d5:fa",
+   "smd_machine": "machine-3-9",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-04",
+     "remote_port": "GigabitEthernet1/0/5",
+     "remote_chassis_id": "00:1b:d5:40:64:98",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "srv-db-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:38:94:51:54",
+     "capabilities": "Station"
+    }
+   ]
+  },
+  {
+   "sys_name": "ap-ctrl-01",
+   "device_type": "wlc",
+   "site": "DC-A",
+   "chassis_id": "00:1b:17:4c:9a:d6",
+   "smd_machine": "machine-2-4",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "dist-sw-02",
+     "remote_port": "GigabitEthernet1/0/5",
+     "remote_chassis_id": "00:1b:53:32:d0:12",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "core-sw-01",
+   "device_type": "core-switch",
+   "site": "DC-A",
+   "chassis_id": "00:1b:2d:53:af:7f",
+   "smd_machine": "machine-1-1",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-02",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:54:95:bb:de",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "dist-sw-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:9a:01:a7:d1",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/3",
+     "remote_sys_name": "dist-sw-02",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:53:32:d0:12",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/4",
+     "remote_sys_name": "fw-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:98:28:3f:37",
+     "capabilities": "Router"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/5",
+     "remote_sys_name": "rtr-edge-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:1b:9b:0e:bd",
+     "capabilities": "Router"
+    }
+   ]
+  },
+  {
+   "sys_name": "core-sw-02",
+   "device_type": "core-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:54:95:bb:de",
+   "smd_machine": "machine-2-7",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:2d:53:af:7f",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "dist-sw-03",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:13:e0:98:08",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/3",
+     "remote_sys_name": "dist-sw-04",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:d5:40:64:98",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/4",
+     "remote_sys_name": "fw-02",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:04:19:7e:3e",
+     "capabilities": "Router"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/5",
+     "remote_sys_name": "rtr-edge-02",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:d7:39:b3:c0",
+     "capabilities": "Router"
+    }
+   ]
+  },
+  {
+   "sys_name": "dist-sw-01",
+   "device_type": "dist-switch",
+   "site": "DC-A",
+   "chassis_id": "00:1b:9a:01:a7:d1",
+   "smd_machine": "machine-1-2",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-01",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:2d:53:af:7f",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "acc-sw-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:cc:27:09:a7",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/3",
+     "remote_sys_name": "acc-sw-02",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:b9:e8:9c:c7",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/4",
+     "remote_sys_name": "acc-sw-03",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:1b:0c:bd:86",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "dist-sw-02",
+   "device_type": "dist-switch",
+   "site": "DC-A",
+   "chassis_id": "00:1b:53:32:d0:12",
+   "smd_machine": "machine-1-3",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-01",
+     "remote_port": "GigabitEthernet1/0/3",
+     "remote_chassis_id": "00:1b:2d:53:af:7f",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "acc-sw-04",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:fa:a7:48:fc",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/3",
+     "remote_sys_name": "acc-sw-05",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:f0:c7:ec:d2",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/4",
+     "remote_sys_name": "acc-sw-06",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:4a:01:86:dc",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/5",
+     "remote_sys_name": "ap-ctrl-01",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:17:4c:9a:d6",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "dist-sw-03",
+   "device_type": "dist-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:13:e0:98:08",
+   "smd_machine": "machine-2-8",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-02",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:54:95:bb:de",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "acc-sw-07",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:60:08:23:27",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/3",
+     "remote_sys_name": "acc-sw-08",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:b6:51:e5:7c",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/4",
+     "remote_sys_name": "acc-sw-09",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:cc:61:69:0a",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "dist-sw-04",
+   "device_type": "dist-switch",
+   "site": "DC-B",
+   "chassis_id": "00:1b:d5:40:64:98",
+   "smd_machine": "machine-2-9",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-02",
+     "remote_port": "GigabitEthernet1/0/3",
+     "remote_chassis_id": "00:1b:54:95:bb:de",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/2",
+     "remote_sys_name": "acc-sw-10",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:b8:af:b5:a6",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/3",
+     "remote_sys_name": "acc-sw-11",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:ec:d2:ae:a0",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/4",
+     "remote_sys_name": "acc-sw-12",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:73:87:ee:dc",
+     "capabilities": "Bridge"
+    },
+    {
+     "local_port": "GigabitEthernet1/0/5",
+     "remote_sys_name": "acc-sw-13",
+     "remote_port": "GigabitEthernet1/0/1",
+     "remote_chassis_id": "00:1b:8e:fe:d5:fa",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "fw-01",
+   "device_type": "firewall",
+   "site": "DC-A",
+   "chassis_id": "00:1b:98:28:3f:37",
+   "smd_machine": "machine-1-4",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-01",
+     "remote_port": "GigabitEthernet1/0/4",
+     "remote_chassis_id": "00:1b:2d:53:af:7f",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "fw-02",
+   "device_type": "firewall",
+   "site": "DC-B",
+   "chassis_id": "00:1b:04:19:7e:3e",
+   "smd_machine": "machine-3-1",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-02",
+     "remote_port": "GigabitEthernet1/0/4",
+     "remote_chassis_id": "00:1b:54:95:bb:de",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "rtr-edge-01",
+   "device_type": "router",
+   "site": "DC-A",
+   "chassis_id": "00:1b:1b:9b:0e:bd",
+   "smd_machine": "machine-1-5",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-01",
+     "remote_port": "GigabitEthernet1/0/5",
+     "remote_chassis_id": "00:1b:2d:53:af:7f",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "rtr-edge-02",
+   "device_type": "router",
+   "site": "DC-B",
+   "chassis_id": "00:1b:d7:39:b3:c0",
+   "smd_machine": "machine-3-2",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "core-sw-02",
+     "remote_port": "GigabitEthernet1/0/5",
+     "remote_chassis_id": "00:1b:54:95:bb:de",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "srv-app-01",
+   "device_type": "server",
+   "site": "DC-A",
+   "chassis_id": "00:1b:d4:f2:c5:d5",
+   "smd_machine": "machine-2-6",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "acc-sw-02",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:b9:e8:9c:c7",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "srv-db-01",
+   "device_type": "server",
+   "site": "DC-B",
+   "chassis_id": "00:1b:38:94:51:54",
+   "smd_machine": "machine-3-11",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "acc-sw-13",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:8e:fe:d5:fa",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "srv-log-01",
+   "device_type": "server",
+   "site": "DC-B",
+   "chassis_id": "00:1b:8e:d3:0d:a5",
+   "smd_machine": "machine-3-10",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "acc-sw-07",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:60:08:23:27",
+     "capabilities": "Bridge"
+    }
+   ]
+  },
+  {
+   "sys_name": "srv-mon-01",
+   "device_type": "server",
+   "site": "DC-A",
+   "chassis_id": "00:1b:8f:df:6b:8e",
+   "smd_machine": "machine-2-5",
+   "lldp_neighbours": [
+    {
+     "local_port": "GigabitEthernet1/0/1",
+     "remote_sys_name": "acc-sw-01",
+     "remote_port": "GigabitEthernet1/0/2",
+     "remote_chassis_id": "00:1b:cc:27:09:a7",
+     "capabilities": "Bridge"
+    }
+   ]
+  }
+ ]
+}
