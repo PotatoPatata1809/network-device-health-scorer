@@ -1,0 +1,265 @@
+{
+ "_provenance": "Derived by build_topology.py from neighbours.json (LLDP sightings). Direction computed from role hints, not authored.",
+ "devices": [
+  {
+   "id": "acc-sw-01",
+   "type": "access-switch",
+   "site": "DC-A",
+   "smd_machine": "machine-1-6",
+   "parent": "dist-sw-01",
+   "children": [
+    "srv-mon-01"
+   ]
+  },
+  {
+   "id": "acc-sw-02",
+   "type": "access-switch",
+   "site": "DC-A",
+   "smd_machine": "machine-1-7",
+   "parent": "dist-sw-01",
+   "children": [
+    "srv-app-01"
+   ]
+  },
+  {
+   "id": "acc-sw-03",
+   "type": "access-switch",
+   "site": "DC-A",
+   "smd_machine": "machine-1-8",
+   "parent": "dist-sw-01",
+   "children": []
+  },
+  {
+   "id": "acc-sw-04",
+   "type": "access-switch",
+   "site": "DC-A",
+   "smd_machine": "machine-2-1",
+   "parent": "dist-sw-02",
+   "children": []
+  },
+  {
+   "id": "acc-sw-05",
+   "type": "access-switch",
+   "site": "DC-A",
+   "smd_machine": "machine-2-2",
+   "parent": "dist-sw-02",
+   "children": []
+  },
+  {
+   "id": "acc-sw-06",
+   "type": "access-switch",
+   "site": "DC-A",
+   "smd_machine": "machine-2-3",
+   "parent": "dist-sw-02",
+   "children": []
+  },
+  {
+   "id": "acc-sw-07",
+   "type": "access-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-3-3",
+   "parent": "dist-sw-03",
+   "children": [
+    "srv-log-01"
+   ]
+  },
+  {
+   "id": "acc-sw-08",
+   "type": "access-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-3-4",
+   "parent": "dist-sw-03",
+   "children": []
+  },
+  {
+   "id": "acc-sw-09",
+   "type": "access-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-3-5",
+   "parent": "dist-sw-03",
+   "children": []
+  },
+  {
+   "id": "acc-sw-10",
+   "type": "access-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-3-6",
+   "parent": "dist-sw-04",
+   "children": []
+  },
+  {
+   "id": "acc-sw-11",
+   "type": "access-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-3-7",
+   "parent": "dist-sw-04",
+   "children": []
+  },
+  {
+   "id": "acc-sw-12",
+   "type": "access-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-3-8",
+   "parent": "dist-sw-04",
+   "children": []
+  },
+  {
+   "id": "acc-sw-13",
+   "type": "access-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-3-9",
+   "parent": "dist-sw-04",
+   "children": [
+    "srv-db-01"
+   ]
+  },
+  {
+   "id": "ap-ctrl-01",
+   "type": "wlc",
+   "site": "DC-A",
+   "smd_machine": "machine-2-4",
+   "parent": "dist-sw-02",
+   "children": []
+  },
+  {
+   "id": "core-sw-01",
+   "type": "core-switch",
+   "site": "DC-A",
+   "smd_machine": "machine-1-1",
+   "parent": null,
+   "children": [
+    "dist-sw-01",
+    "dist-sw-02",
+    "fw-01",
+    "rtr-edge-01"
+   ]
+  },
+  {
+   "id": "core-sw-02",
+   "type": "core-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-2-7",
+   "parent": null,
+   "children": [
+    "dist-sw-03",
+    "dist-sw-04",
+    "fw-02",
+    "rtr-edge-02"
+   ]
+  },
+  {
+   "id": "dist-sw-01",
+   "type": "dist-switch",
+   "site": "DC-A",
+   "smd_machine": "machine-1-2",
+   "parent": "core-sw-01",
+   "children": [
+    "acc-sw-01",
+    "acc-sw-02",
+    "acc-sw-03"
+   ]
+  },
+  {
+   "id": "dist-sw-02",
+   "type": "dist-switch",
+   "site": "DC-A",
+   "smd_machine": "machine-1-3",
+   "parent": "core-sw-01",
+   "children": [
+    "acc-sw-04",
+    "acc-sw-05",
+    "acc-sw-06",
+    "ap-ctrl-01"
+   ]
+  },
+  {
+   "id": "dist-sw-03",
+   "type": "dist-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-2-8",
+   "parent": "core-sw-02",
+   "children": [
+    "acc-sw-07",
+    "acc-sw-08",
+    "acc-sw-09"
+   ]
+  },
+  {
+   "id": "dist-sw-04",
+   "type": "dist-switch",
+   "site": "DC-B",
+   "smd_machine": "machine-2-9",
+   "parent": "core-sw-02",
+   "children": [
+    "acc-sw-10",
+    "acc-sw-11",
+    "acc-sw-12",
+    "acc-sw-13"
+   ]
+  },
+  {
+   "id": "fw-01",
+   "type": "firewall",
+   "site": "DC-A",
+   "smd_machine": "machine-1-4",
+   "parent": "core-sw-01",
+   "children": []
+  },
+  {
+   "id": "fw-02",
+   "type": "firewall",
+   "site": "DC-B",
+   "smd_machine": "machine-3-1",
+   "parent": "core-sw-02",
+   "children": []
+  },
+  {
+   "id": "rtr-edge-01",
+   "type": "router",
+   "site": "DC-A",
+   "smd_machine": "machine-1-5",
+   "parent": "core-sw-01",
+   "children": []
+  },
+  {
+   "id": "rtr-edge-02",
+   "type": "router",
+   "site": "DC-B",
+   "smd_machine": "machine-3-2",
+   "parent": "core-sw-02",
+   "children": []
+  },
+  {
+   "id": "srv-app-01",
+   "type": "server",
+   "site": "DC-A",
+   "smd_machine": "machine-2-6",
+   "parent": "acc-sw-02",
+   "children": []
+  },
+  {
+   "id": "srv-db-01",
+   "type": "server",
+   "site": "DC-B",
+   "smd_machine": "machine-3-11",
+   "parent": "acc-sw-13",
+   "children": []
+  },
+  {
+   "id": "srv-log-01",
+   "type": "server",
+   "site": "DC-B",
+   "smd_machine": "machine-3-10",
+   "parent": "acc-sw-07",
+   "children": []
+  },
+  {
+   "id": "srv-mon-01",
+   "type": "server",
+   "site": "DC-A",
+   "smd_machine": "machine-2-5",
+   "parent": "acc-sw-01",
+   "children": []
+  }
+ ]
+}

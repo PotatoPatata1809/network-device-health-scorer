@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { background: #f6f8fa; color: #1f2328; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #d8dee4; border-radius: 4px; }
+.react-flow__attribution { display: none; }
+tr { transition: background .4s; }
+@keyframes pulse-hl { 0%,100% { background: #fff8c5; } 50% { background: #ffec99; } }
+.demo-hl { animation: pulse-hl 1.6s ease-in-out infinite; }
