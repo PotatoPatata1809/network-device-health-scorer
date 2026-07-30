@@ -10,8 +10,8 @@ const DEMO_FILES: Record<string, string> = {
 export const DEMO_DEVICE: Record<string, string> = {
   leak: "core-sw-01", creep: "acc-sw-01", spike: "fw-01",
 };
-const TICK_MS = 850;          // slow enough to follow
-const DISCOVER_MS = 550;      // one device found per beat
+const TICK_MS = 750;          // slow enough to follow
+const DISCOVER_MS = 480;      // one device found per beat
 
 export function useDeviceState() {
   const [state, setState] = useState<State | null>(null);

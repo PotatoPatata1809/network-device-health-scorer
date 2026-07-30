@@ -17,7 +17,8 @@ export default function PriorityList({
       <div className="flex items-center justify-between mb-2">
         <Label>
           Devices — most important first
-          {discovered && <span className="text-green normal-case tracking-normal ml-2">
+          {discovered && discovered.size > 0 && discovered.size < devices.length &&
+            <span className="text-green normal-case tracking-normal ml-2">
             · discovering… {list.length}/{devices.length} found</span>}
         </Label>
         <div className="text-[11.5px] flex gap-3">

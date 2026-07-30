@@ -24,13 +24,14 @@ type Tab = "overview" | "map" | "incidents" | "terminal";
 
 export default function Page() {
   const { state, demo, discovered, booted, paused, setPaused, startScenario, startDiscover, stopDemo } = useDeviceState();
-  const [selected, setSelected] = useState("core-sw-01");
+  const [selected, setSelected] = useState<string>("");
   const [tab, setTab] = useState<Tab>("overview");
   const [menuOpen, setMenuOpen] = useState(false);
 
   // during a scenario demo, keep the affected device selected + highlighted
   const demoDev = demo && demo !== "discover" ? DEMO_DEVICE[demo] : null;
   useEffect(() => { if (demoDev) setSelected(demoDev); }, [demoDev]);
+  useEffect(() => { if (booted && !selected) setSelected("core-sw-01"); }, [booted, selected]);
 
   if (!state) return <div className="p-8 text-mut text-sm">Loading NetPulse…</div>;
 
@@ -45,7 +46,7 @@ export default function Page() {
     else { setTab("overview"); startScenario(key as "leak" | "creep" | "spike"); }
   };
 
-  const nInc = state.correlation?.incident_count ?? 0;
+  const nInc = booted ? (state.correlation?.incident_count ?? 0) : 0;
   const TabBtn = ({ id, label }: { id: Tab; label: string }) => (
     <button onClick={() => setTab(id)}
       className={`px-3.5 py-1.5 rounded-md text-[13px] ${
@@ -117,7 +118,11 @@ export default function Page() {
                           highlight={demoDev} />
           </div>
           <div className="flex-1 border-l border-line bg-panel overflow-auto px-6 py-5">
-            <DeviceDetail device={dev} />
+            {booted
+              ? <DeviceDetail device={dev} />
+              : <div className="text-mut text-[13px] mt-8 text-center">
+                  Select a device after discovery to see its health, forecast and blast radius.
+                </div>}
           </div>
         </div>
       )}
@@ -126,7 +131,8 @@ export default function Page() {
         <div className="flex-1 min-h-0">
           <TopologyMap devices={state.devices} selected={selected}
                        onSelect={(d) => { setSelected(d); }}
-                       discovered={visible} />
+                       discovered={visible}
+                       discovering={demo === "discover"} />
         </div>
       )}
 
@@ -138,8 +144,12 @@ export default function Page() {
 
       {tab === "incidents" && (
         <div className="flex-1 overflow-auto px-6 py-5">
-          <IncidentsPanel c={state.correlation} devices={state.devices}
-                          onOpenDevice={(d) => { setSelected(d); setTab("overview"); }} />
+          {booted
+            ? <IncidentsPanel c={state.correlation} devices={state.devices}
+                              onOpenDevice={(d) => { setSelected(d); setTab("overview"); }} />
+            : <div className="text-mut text-[13px] pt-8">
+                No incidents yet — run <span className="font-mono">discover</span> to begin monitoring.
+              </div>}
         </div>
       )}
     </main>

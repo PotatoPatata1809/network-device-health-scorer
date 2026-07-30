@@ -33,8 +33,9 @@ export default function TopologyMap({
     topo.forEach((d) => { (perDepth[depth[d.id]] ??= []).push(d.id); });
     Object.values(perDepth).forEach((arr) => arr.sort());
 
+    const disc = discovering;
     const visible = (id: string) => !discovered || discovered.has(id);
-    const discovering = !!discovered;
+    const discovering = !!disc;
 
     const nodes: Node[] = topo.filter((d) => visible(d.id)).map((d) => {
       const sibs = perDepth[depth[d.id]];
@@ -81,12 +82,17 @@ export default function TopologyMap({
 
   return (
     <div className="h-full w-full relative">
-      {discovered && (
+      {discovered && discovered.size > 0 && discovered.size < devices.length && (
         <div className="absolute z-10 top-3 left-4 text-[12.5px] text-green bg-panel border border-line rounded px-3 py-1.5">
           Walking LLDP neighbours… <b>{nodes.length}</b> of {devices.length} devices found
         </div>
       )}
-      {!discovered && selected && (
+      {discovered && discovered.size === 0 && (
+        <div className="absolute z-10 top-3 left-4 text-[12.5px] text-mut bg-panel border border-line rounded px-3 py-1.5">
+          No topology yet — run <span className="font-mono">discover</span> to build the map.
+        </div>
+      )}
+      {!discovering && discovered===null && selected && (
         <div className="absolute z-10 top-3 left-4 text-[12.5px] bg-panel border border-line rounded px-3 py-1.5">
           <b>{selected}</b>{selDown.size > 0
             ? <> — if it fails, <b className="text-red">{selDown.size} devices</b> lose their path (shown in red)</>
